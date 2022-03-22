@@ -1,5 +1,6 @@
 import {Promise} from 'bluebird';
 import React, {useEffect, useCallback, useRef, useState} from 'react';
+import {useMemo} from 'react';
 import {ScrollView, TouchableOpacity, View} from 'react-native';
 import {IcCart, IcNext} from '../../assets';
 import {CustomText} from '../../global/components';
@@ -16,7 +17,7 @@ const Home = () => {
     [errorMessage, setErrorMessage] = React.useState(''),
     [index, setIndex] = React.useState(0),
     [price, setPrice] = React.useState(0);
-  const [count, setCount] = useState(0);
+  const [counts, setCounts] = useState([]);
   // ref = useRef ({count : 1});
 
   useEffect(() => {
@@ -27,7 +28,6 @@ const Home = () => {
         FETCH.cancel();
       } catch (error_fetch_cancel) {}
     };
-
   }, []);
 
   const fetchData = async () => {
@@ -79,9 +79,20 @@ const Home = () => {
   //     setCount(true);
   //   };
 
-  const callback = useCallback(count => {
-    setCount(count);
-  });
+  const callback = useCallback((count, id) => {
+    setCounts(counts => {
+      counts[id] = count;
+
+      return {...counts};
+    });
+  }, []);
+
+  console.log('counts', counts);
+
+  const total = useMemo(
+    () => Object.values(counts).reduce((a, b) => a + b, 0),
+    [counts],
+  );
 
   return (
     <View style={{flex: 1}}>
@@ -129,7 +140,7 @@ const Home = () => {
 
               {item?.data?.map((item, i) => (
                 <FoodCard
-                  key={i}
+                  key={item.id}
                   id={item.id}
                   description={item.description}
                   image={item.image}
@@ -172,9 +183,7 @@ const Home = () => {
                 marginRight: 10,
               }}></View>
             <View>
-              <CustomText color={COLOR.silver2}>
-              {count} Item
-              </CustomText>
+              <CustomText color={COLOR.silver2}>{total} Item</CustomText>
               <CustomText color={COLOR.white}>$200</CustomText>
             </View>
           </View>

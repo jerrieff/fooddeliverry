@@ -1,38 +1,37 @@
-import React, {
-  useEffect,
-  useCallback,
-  forwardRef,
-  useRef,
-  useState,
-} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {Avatar, CustomText, Counter} from '../../components';
+import {Avatar, CustomText} from '../../components';
 import {IcMin, IcPlus} from '../../../assets';
 
 const FoodCard = ({id, name, image, price, description, parentCallback}) => {
-  const [totalItem, setTotalItem] = React.useState(1),
-    [value, setValue] = useState(1);
-  var [visible, setVisible] = useState(false);
-  const [count, setCount] = useState(value);
+  const [visible, setVisible] = useState(false);
+  const [count, setCount] = useState(0);
 
   const handleCounter = () => {
     setVisible(s => !s);
-    parentCallback(count);
   };
 
   const onCount = type => {
     if (type === 'plus') {
       setCount(prevCount => prevCount + 1);
     }
-    if (type === 'minus') {
-      if (count > 1) {
-        setCount(prevCount => prevCount - 1);
-      }
+    if (type === 'minus' && count > 1) {
+      setCount(prevCount => prevCount - 1);
     }
     // setValue(result);
-
-    parentCallback(count);
   };
+
+  useEffect(() => {
+    if (visible === true) {
+      setCount(1);
+    } else {
+      setCount(0);
+    }
+  }, [visible]);
+
+  useEffect(() => {
+    parentCallback(count, id);
+  }, [count, id, parentCallback]);
 
   return (
     <View style={{padding: 16, flexDirection: 'row'}}>
